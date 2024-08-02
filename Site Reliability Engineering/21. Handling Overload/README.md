@@ -1,17 +1,15 @@
 # Handling Overload
-
-
-metric 측정기준
-overload 과부하
-overhead 간접비
-
-
+과부하를 방지하는것이 로드밸런싱 정책의 목표이지만 과부하는 발생한다.
+가능한 경우 리디렉션하고, 필요한 경우 품질이 저하된 결과를 제공하며, 다른 모든 방법이 실패할 경우 
+리소스 오류를 투명하게 처리하는 등 리소스 제한을 우아하게 처리할 수 있는 클라이언트와 백엔드를 구축하는 것이 가장 좋다.
 
 ## The Pitfalls of Queries per Second
 Queries per Second 리퀘스트마다 사용하는 리소스 양이 다르기 때문에 이 메트릭은 정확하지 못하다.
 대신에 백엔드의 실시간 cpu 사용시간을 메트릭으로 활용하는데 잘 동작한다.
+
 ## Per Customer Limits
 실시간으로 cpu 사용시간을 측정해서 Customer Limit 을 설정한다. limit 을 넘으면, 에러를 리턴한다.
+
 ## Client-Side Throttling
 어떤 요청들은 실제로 요청을 처리하는것과 에러를 되돌려주는것의 비용차이가 거의 없기도 하다.
 이런경우 백엔드는 에러를 돌려주다가 오버로드상태가 됨으로 클라이언트 측에서의 Throttling 이 필요하다.
