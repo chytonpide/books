@@ -8,6 +8,12 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
+/*
+RUN:
+cd /Users/kangwhiwon/IdeaProjects/books/Crafting\ Interpreters/lox/src/main/java/
+javac com/craftinginterpreters/lox/Lox.java
+java com.craftinginterpreters.lox.Lox "/Users/kangwhiwon/IdeaProjects/books/Crafting Interpreters/lox/src/main/java/com/craftinginterpreters/lox/script.txt"
+ */
 public class Lox {
   private static final Interpreter interpreter = new Interpreter();
   static boolean hadError = false;
@@ -49,12 +55,12 @@ public class Lox {
     Scanner scanner = new Scanner(source);
     List<Token> tokens = scanner.scanTokens();
     Parser parser = new Parser(tokens);
-    Expr expression = parser.parse();
+    List<Stmt> statements = parser.parse();
 
     // Stop if there was a syntax error.
     if (hadError) return;
 
-    interpreter.interpret(expression);
+    interpreter.interpret(statements);
   }
 
   static void error(int line, String message) {

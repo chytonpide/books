@@ -7,22 +7,32 @@ import java.util.List;
 
 /*
 RUN:
-cd /Users/kangwhiwon/IdeaProjects/books/Crafting Interpreters/lox/src/main/java
+cd /Users/kangwhiwon/IdeaProjects/books/Crafting\ Interpreters/lox/src/main/java/
 javac com/craftinginterpreters/tool/GenerateAst.java
 java com.craftinginterpreters.tool.GenerateAst "/Users/kangwhiwon/IdeaProjects/books/Crafting Interpreters/lox/src/main/java/com/craftinginterpreters/lox"
  */
 public class GenerateAst {
+
   public static void main(String[] args) throws IOException {
-    if(args.length != 1) {
+    if (args.length != 1) {
       System.err.println("Usage: generate_ast <output directory>");
       System.exit(64);
     }
     String outputDir = args[0];
     defineAst(outputDir, "Expr", Arrays.asList(
+        "Assign   : Token name, Expr value",
         "Binary   : Expr left, Token operator, Expr right",
         "Grouping : Expr expression",
         "Literal  : Object value",
-        "Unary    : Token operator, Expr right"
+        "Unary    : Token operator, Expr right",
+        "Variable : Token name"
+    ));
+
+    defineAst(outputDir, "Stmt", Arrays.asList(
+        "Block      : List<Stmt> statements",
+        "Expression : Expr expression",
+        "Print      : Expr expression",
+        "Var        : Token name, Expr initializer"
     ));
   }
 
@@ -38,7 +48,7 @@ public class GenerateAst {
     defineVisitor(writer, baseName, types);
 
     // The AST classes.
-    for (String type: types) {
+    for (String type : types) {
       String className = type.split(":")[0].trim();
       String fields = type.split(":")[1].trim();
       defineType(writer, baseName, className, fields);
@@ -55,7 +65,7 @@ public class GenerateAst {
   private static void defineVisitor(PrintWriter writer, String baseName, List<String> types) {
     writer.println("  interface Visitor<R> {");
 
-    for(String type: types) {
+    for (String type : types) {
       String typeName = type.split(":")[0].trim();
       writer.println("    R visit" + typeName + baseName + "(" + typeName + " " + baseName.toLowerCase() + ");");
     }
@@ -71,7 +81,7 @@ public class GenerateAst {
 
     // Store parameters in fields.
     String[] fields = fieldList.split(", ");
-    for (String field: fields) {
+    for (String field : fields) {
       String name = field.split(" ")[1];
       writer.println("      this." + name + "=" + name + ";");
     }
@@ -87,8 +97,8 @@ public class GenerateAst {
 
     // Fields
     writer.println();
-    for (String field: fields) {
-      writer.println("     final " + field + ";");
+    for (String field : fields) {
+      writer.println("    final " + field + ";");
     }
 
     writer.println("  }");
