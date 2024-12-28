@@ -3,6 +3,7 @@ package com.craftinginterpreters.lox;
 import com.craftinginterpreters.lox.Expr.Binary;
 import com.craftinginterpreters.lox.Expr.Grouping;
 import com.craftinginterpreters.lox.Expr.Literal;
+import com.craftinginterpreters.lox.Expr.Logical;
 import com.craftinginterpreters.lox.Expr.Unary;
 import com.craftinginterpreters.lox.Stmt.Expression;
 import com.craftinginterpreters.lox.Stmt.Print;
@@ -75,6 +76,18 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
   @Override
   public Object visitLiteralExpr(Literal expr) {
     return expr.value;
+  }
+
+  @Override
+  public Object visitLogicalExpr(Logical expr) {
+    Object left = evaluate(expr.left);
+
+    if (expr.operator.type == TokenType.OR) {
+      if (isTruthy(left)) return left; // 꼭 boolean 타입이 아닐 수도 있음으로 left 를 그대로 돌려줘야 한다.
+    } else {
+      if (!isTruthy(left)) return left;
+    }
+    return evaluate(expr.right);
   }
 
   @Override
@@ -173,6 +186,16 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
   }
 
   @Override
+  public Void visitIfStmt(Stmt.If stmt) {
+    if (isTruthy(evaluate(stmt.condition))) {
+      execute(stmt.thenBranch);
+    } else if (stmt.elseBranch != null) {
+      execute(stmt.elseBranch);
+    }
+    return null;
+  }
+
+  @Override
   public Void visitPrintStmt(Stmt.Print stmt) {
     Object value = evaluate(stmt.expression);
     System.out.print(stringfy(value));
@@ -187,6 +210,14 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     environment.define(stmt.name.lexeme, value);
+    return null;
+  }
+
+  @Override
+  public Void visitWhileStmt(Stmt.While stmt) {
+    while(isTruthy(evaluate(stmt.condition))) {
+      execute(stmt.body);
+    }
     return null;
   }
 
