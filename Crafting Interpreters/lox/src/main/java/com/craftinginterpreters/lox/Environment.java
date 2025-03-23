@@ -15,7 +15,7 @@ class Environment {
     this.enclosing = enclosing;
   }
 
-  // define 은 name 으로 하는게 납득이 가는데, get은 Token으로 하는건 클라이언트 측에서 varible 을 토큰으로 다루는게 명확하기 때문인가?
+  // define 은 name 으로 하는게 납득이 가는데, get은 Token으로 하는건 클라이언트 측에서 varible 을 토큰으로 다루는게 명확하기 때문이다.
   Object get(Token name) {
     if (values.containsKey(name.lexeme)) {
       return values.get(name.lexeme);
@@ -42,5 +42,22 @@ class Environment {
 
   void define(String name, Object value) {
     values.put(name, value);
+  }
+
+  Environment ancestor(int distance) {
+    Environment environment = this;
+    for (int i = 0; i < distance; i ++) {
+      environment = environment.enclosing;
+    }
+
+    return environment;
+  }
+
+  Object getAt(int distance, String name) {
+    return ancestor(distance).values.get(name);
+  }
+
+  void assignAt(int distance, Token name, Object value) {
+    ancestor(distance).values.put(name.lexeme, value);
   }
 }
