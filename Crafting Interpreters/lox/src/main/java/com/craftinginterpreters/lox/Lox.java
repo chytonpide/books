@@ -13,6 +13,9 @@ RUN:
 cd /Users/kangwhiwon/IdeaProjects/books/Crafting\ Interpreters/lox/src/main/java/
 javac com/craftinginterpreters/lox/Lox.java
 java com.craftinginterpreters.lox.Lox "/Users/kangwhiwon/IdeaProjects/books/Crafting Interpreters/lox/src/main/java/com/craftinginterpreters/lox/script.txt"
+DEL:
+cd /Users/kangwhiwon/IdeaProjects/books/Crafting\ Interpreters/lox/src/main/java/
+find . -type f -name "*.class" -delete
  */
 public class Lox {
   private static final Interpreter interpreter = new Interpreter();
