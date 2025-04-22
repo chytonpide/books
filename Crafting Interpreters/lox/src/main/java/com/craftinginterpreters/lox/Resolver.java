@@ -1,5 +1,6 @@
 package com.craftinginterpreters.lox;
 
+import com.craftinginterpreters.lox.Expr.Variable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,9 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   private final Interpreter interpreter;
   private final Stack<Map<String, Boolean>> scopes = new Stack<>();
   private FunctionType currentFunction = FunctionType.NONE;
+
+  // [추가]
+  private int latestPrimitiveCallLine = 0;
 
   Resolver(Interpreter interpreter) {
     this.interpreter = interpreter;
@@ -161,6 +165,15 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   public Void visitCallExpr(Expr.Call expr) {
     resolve(expr.callee);
 
+    // 추가: sdtin 에서 runtime error 가 발생할 경우 라인 정보를 interpreter 에 설정
+    if(expr.callee instanceof Expr.Variable) {
+      Expr.Variable typedExpr = ((Variable) expr.callee);
+      if(typedExpr.name.lexeme.equals("sdtin")) {
+        latestPrimitiveCallLine = expr.paren.line;
+        interpreter.setLatestPrimitiveCallLine(latestPrimitiveCallLine);
+      }
+    }
+
     for (Expr argument : expr.arguments) {
       resolve(argument);
     }
@@ -203,7 +216,7 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   public Void visitSuperExpr(Expr.Super expr) {
     if (currentClass == ClassType.NONE) {
       Lox.error(expr.keyword, "Can't use 'super' outside of class.");
-    } else if(currentClass == ClassType.SUBCLASS) {
+    } else if(currentClass != ClassType.SUBCLASS) {
       Lox.error(expr.keyword, "Can't use 'super' in a class with no superclass.");
     }
 

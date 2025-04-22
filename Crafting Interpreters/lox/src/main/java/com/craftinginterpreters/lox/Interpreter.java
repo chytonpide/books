@@ -7,6 +7,9 @@ import com.craftinginterpreters.lox.Expr.Grouping;
 import com.craftinginterpreters.lox.Expr.Literal;
 import com.craftinginterpreters.lox.Expr.Logical;
 import com.craftinginterpreters.lox.Expr.Unary;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +20,8 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
   final Environment globals = new Environment();
   private Environment environment = globals;
   private final Map<Expr, Integer> locals = new HashMap<>();
+
+  private int latestPrimitiveCallLine = 0;
 
   Interpreter() {
     globals.define("clock", new LoxCallable() {
@@ -33,6 +38,20 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
       @Override
       public String toString() {
         return "<native function>";
+      }
+    });
+
+    // 추가: sdtin 구현
+    globals.define("sdtin", new LoxPrimitiveFunction("sdtin") {
+      @Override
+      public Object call(Interpreter interpreter, List<Object> arguments) {
+        try {
+          BufferedReader bufferRead = new BufferedReader(new InputStreamReader(System.in));
+          return bufferRead.readLine();
+        } catch (IOException e) {
+          Token token = new Token(TokenType.IDENTIFIER, "sdtin", null, latestPrimitiveCallLine);
+          throw new RuntimeError(token, "sdtin faild.");
+        }
       }
     });
   }
@@ -389,5 +408,9 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     throw new RuntimeError(expr.name, "Only instances have properties.");
+  }
+
+  public void setLatestPrimitiveCallLine(int latestPrimitiveCallLine) {
+      this.latestPrimitiveCallLine = latestPrimitiveCallLine;
   }
 }

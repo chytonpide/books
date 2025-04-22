@@ -1,0 +1,16 @@
+class Inbody {
+  //var height; 명시적 선언은 할 수 없다.
+
+  prompt() {
+    print "키를 입력하세요.";
+    this.height = sdtin();
+  }
+
+  result() {
+    print "height:" + this.height; // this 는 꼭 써야한다.
+  }
+}
+
+var inbody = Inbody();
+inbody.prompt();
+inbody.result();
