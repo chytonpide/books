@@ -1,0 +1,42 @@
+class ListItem {
+  init(prev, value) {
+    this.prev = prev;
+    this.value = value;
+  }
+}
+
+class List {
+  init() {
+    this.size = 0;
+    this.latest = nil;
+  }
+
+  add(value) {
+    this.size = this.size + 1;
+    var listItem = ListItem(this.latest, value);
+    this.latest = listItem;
+  }
+
+  get(i) {
+    var k = this.size - 1;
+    var target = this.latest;
+    while(k > i) {
+      target = target.prev;
+      k = k - 1;
+    }
+    return target.value;
+  }
+}
+
+
+
+var list = List();
+list.add("a");
+list.add("b");
+print(list.size);
+
+for (var i=0; i< list.size; i=i+1) {
+  print(list.get(i));
+}
+
+
