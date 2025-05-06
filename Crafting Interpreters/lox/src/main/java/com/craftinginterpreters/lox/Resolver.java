@@ -1,5 +1,8 @@
 package com.craftinginterpreters.lox;
 
+import com.craftinginterpreters.lox.Expr.Array;
+import com.craftinginterpreters.lox.Expr.ArrayGet;
+import com.craftinginterpreters.lox.Expr.ArraySet;
 import com.craftinginterpreters.lox.Expr.Variable;
 import java.util.HashMap;
 import java.util.List;
@@ -188,6 +191,13 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   }
 
   @Override
+  public Void visitArrayGetExpr(ArrayGet expr) {
+    resolve(expr.index);
+    resolve(expr.callee);
+    return null;
+  }
+
+  @Override
   public Void visitGroupingExpr(Expr.Grouping expr) {
     resolve(expr.expression);
     return null;
@@ -209,6 +219,14 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
   public Void visitSetExpr(Expr.Set expr) {
     resolve(expr.value);
     resolve(expr.object);
+    return null;
+  }
+
+  @Override
+  public Void visitArraySetExpr(ArraySet expr) {
+    resolve(expr.value);
+    resolve(expr.index);
+    resolve(expr.callee);
     return null;
   }
 
@@ -255,6 +273,11 @@ public class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     }
 
     resolveLocal(expr, expr.name);
+    return null;
+  }
+
+  @Override
+  public Void visitArrayExpr(Array expr) {
     return null;
   }
 

@@ -1,8 +1,10 @@
 package com.craftinginterpreters.lox;
 
+import javax.print.DocFlavor.STRING;
+
 public enum TokenType {
   // Single-character tokens. PAREN -> parentheses: 괄호
-  LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE,
+  LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE, LEFT_SQUARE, RIGHT_SQUARE,
   COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR,
 
   // One or Two character tokens.

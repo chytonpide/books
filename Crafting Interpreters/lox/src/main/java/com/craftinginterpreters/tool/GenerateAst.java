@@ -24,14 +24,17 @@ public class GenerateAst {
         "Binary   : Expr left, Token operator, Expr right",
         "Call     : Expr callee, Token paren, List<Expr> arguments",
         "Get      : Expr object, Token name",
+        "ArrayGet : Expr callee, Token square, Expr index",
         "Logical  : Expr left, Token operator, Expr right",
         "Set      : Expr object, Token name, Expr value",
+        "ArraySet : Expr callee, Token square, Expr index, Expr value",
         "Super    : Token keyword, Token method",
         "This     : Token keyword",
         "Grouping : Expr expression",
         "Literal  : Object value",
         "Unary    : Token operator, Expr right",
-        "Variable : Token name"
+        "Variable : Token name",
+        "Array    : Token square, List<Expr> items"
     ));
 
     defineAst(outputDir, "Stmt", Arrays.asList(

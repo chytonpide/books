@@ -8,14 +8,17 @@ abstract class Expr {
     R visitBinaryExpr(Binary expr);
     R visitCallExpr(Call expr);
     R visitGetExpr(Get expr);
+    R visitArrayGetExpr(ArrayGet expr);
     R visitLogicalExpr(Logical expr);
     R visitSetExpr(Set expr);
+    R visitArraySetExpr(ArraySet expr);
     R visitSuperExpr(Super expr);
     R visitThisExpr(This expr);
     R visitGroupingExpr(Grouping expr);
     R visitLiteralExpr(Literal expr);
     R visitUnaryExpr(Unary expr);
     R visitVariableExpr(Variable expr);
+    R visitArrayExpr(Array expr);
   }
   static class Assign extends Expr {
     Assign(Token name, Expr value) {
@@ -77,6 +80,22 @@ abstract class Expr {
     final Expr object;
     final Token name;
   }
+  static class ArrayGet extends Expr {
+    ArrayGet(Expr callee, Token square, Expr index) {
+      this.callee=callee;
+      this.square=square;
+      this.index=index;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitArrayGetExpr(this);
+    }
+
+    final Expr callee;
+    final Token square;
+    final Expr index;
+  }
   static class Logical extends Expr {
     Logical(Expr left, Token operator, Expr right) {
       this.left=left;
@@ -107,6 +126,24 @@ abstract class Expr {
 
     final Expr object;
     final Token name;
+    final Expr value;
+  }
+  static class ArraySet extends Expr {
+    ArraySet(Expr callee, Token square, Expr index, Expr value) {
+      this.callee=callee;
+      this.square=square;
+      this.index=index;
+      this.value=value;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitArraySetExpr(this);
+    }
+
+    final Expr callee;
+    final Token square;
+    final Expr index;
     final Expr value;
   }
   static class Super extends Expr {
@@ -184,6 +221,20 @@ abstract class Expr {
     }
 
     final Token name;
+  }
+  static class Array extends Expr {
+    Array(Token square, List<Expr> items) {
+      this.square=square;
+      this.items=items;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitArrayExpr(this);
+    }
+
+    final Token square;
+    final List<Expr> items;
   }
 
   abstract <R> R accept(Visitor<R> visitor);

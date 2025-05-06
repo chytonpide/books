@@ -1,11 +1,18 @@
 package com.craftinginterpreters.lox;
 
+import com.craftinginterpreters.lox.Expr.Array;
+import com.craftinginterpreters.lox.Expr.ArrayGet;
+import com.craftinginterpreters.lox.Expr.ArraySet;
 import com.craftinginterpreters.lox.Expr.Assign;
 import com.craftinginterpreters.lox.Expr.Binary;
 import com.craftinginterpreters.lox.Expr.Call;
+import com.craftinginterpreters.lox.Expr.Get;
 import com.craftinginterpreters.lox.Expr.Grouping;
 import com.craftinginterpreters.lox.Expr.Literal;
 import com.craftinginterpreters.lox.Expr.Logical;
+import com.craftinginterpreters.lox.Expr.Set;
+import com.craftinginterpreters.lox.Expr.Super;
+import com.craftinginterpreters.lox.Expr.This;
 import com.craftinginterpreters.lox.Expr.Unary;
 import com.craftinginterpreters.lox.Expr.Variable;
 
@@ -33,8 +40,38 @@ class AstPrinter implements Expr.Visitor<String> {
   }
 
   @Override
+  public String visitGetExpr(Get expr) {
+    return "";
+  }
+
+  @Override
+  public String visitArrayGetExpr(ArrayGet expr) {
+    return "";
+  }
+
+  @Override
   public String visitLogicalExpr(Logical expr) {
     return parenthesize(expr.operator.lexeme, expr.left, expr.right);
+  }
+
+  @Override
+  public String visitSetExpr(Set expr) {
+    return "";
+  }
+
+  @Override
+  public String visitArraySetExpr(ArraySet expr) {
+    return "";
+  }
+
+  @Override
+  public String visitSuperExpr(Super expr) {
+    return "";
+  }
+
+  @Override
+  public String visitThisExpr(This expr) {
+    return "";
   }
 
   @Override
@@ -56,6 +93,11 @@ class AstPrinter implements Expr.Visitor<String> {
   @Override
   public String visitVariableExpr(Variable expr) {
     return parenthesize(expr.name.lexeme);
+  }
+
+  @Override
+  public String visitArrayExpr(Array expr) {
+    return "";
   }
 
   private String parenthesize(String name, Expr... exprs) {

@@ -1,5 +1,6 @@
 package com.craftinginterpreters.lox;
 
+import com.craftinginterpreters.lox.Expr.Array;
 import com.craftinginterpreters.lox.Expr.Binary;
 import com.craftinginterpreters.lox.Expr.Literal;
 import java.util.ArrayList;
@@ -207,18 +208,36 @@ class Parser {
   }
 
   private Expr assignment() {
+    if (match(LEFT_SQUARE)) {
+      Token leftSquare = previous();
+
+      List<Expr> items = new ArrayList<>();
+      if (!check(RIGHT_SQUARE)) {
+        do {
+          items.add(arrayItem());
+        } while (match(COMMA));
+      }
+
+      Token rightSquare = consume(RIGHT_SQUARE, "Expect ']' after array items.");
+      return new Array(rightSquare, items);
+    }
+
     Expr expr = or();
+    // 문법 규칙 call, primary 까지 내려감으로 잠재적으로 Expr.Variable, Expr.Get, Expr.ArrayGet 이 될수 있다.
+    // 하지만 assignment 라면 좌변에 허용되는 것은  Expr.Variable, Expr.Get 뿐이다.
 
     if (match(EQUAL)) {
       Token equals = previous();
       Expr value = assignment();
-
-      if(expr instanceof Expr.Variable) { // grammer rule 과 다르게 좌변은 IDENTIFIER 만 될 수 있다.
+      if(expr instanceof Expr.Variable) { // grammar rule 과 다르게 좌변은 IDENTIFIER 만 될 수 있다.
         Token name = ((Expr.Variable)expr).name;
         return new Expr.Assign(name, value);
       } else if (expr instanceof Expr.Get) {
         Expr.Get get = (Expr.Get)expr;
         return new Expr.Set(get.object, get.name, value);
+      } else if (expr instanceof Expr.ArrayGet) {
+        Expr.ArrayGet arrayGet = (Expr.ArrayGet)expr;
+        return new Expr.ArraySet(arrayGet.callee, arrayGet.square, arrayGet.index, value);
       }
 
       error(equals, "Invalid assignment target.");
@@ -341,12 +360,27 @@ class Parser {
       } else if (match(DOT)) {
         Token name = consume(IDENTIFIER, "Expect property name after '.'.");
         expr = new Expr.Get(expr, name);
-      }else {
+      } else if (match(LEFT_SQUARE)) {
+        Expr index = expression();
+        Token square = consume(RIGHT_SQUARE, "Expect ']' after index.");
+        expr = new Expr.ArrayGet(expr, square, index);
+      } else {
         break;
       }
     }
 
     return expr;
+  }
+
+  private Expr arrayItem() {
+    if (match(FALSE)) return new Expr.Literal(false);
+    if (match(TRUE)) return new Expr.Literal(true);
+    if (match(NIL)) return new Expr.Literal(null);
+
+    if (match(NUMBER, STRING)) {
+      return new Expr.Literal(previous().literal);
+    }
+    throw error(peek(), "Expect expression.");
   }
 
   private Expr primary() {

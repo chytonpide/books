@@ -1,0 +1,30 @@
+var arr = ["a","b","c"];
+print(arr.length);
+print(arr[0]); // access using index
+print("----");
+
+for (var i=0; i < arr.length; i=i+1) {
+  print(arr[i]);  // access using variable
+}
+
+print("----");
+
+arr[0] = "d"; // assign to array
+print(arr[0]);
+
+
+class Hoge {
+}
+
+var hoge = Hoge();
+hoge.items = arr;
+print("----");
+print(hoge.items[1]); // access inside object
+
+// MEMO: 최초의 Lox 인터프리터의 바이너리가 있으면 Array를 Lox 언어를 사용한 클래스로 정의하고, 이를 위한 특별한 표현식이 제공하는 식으로 다시 인터프리터를 구현 할 수 있을까?
+// Kotlin: dual representation 전략
+// Java 에서는 배열을 언어 내부 안의 구현으로 두는것은 (원시타입), Kotlin 에서는 클래스로 끌어올렸다. 이로 인해서 다음과 같은 이점이 생겼다.
+// - 일관된 타입계층을 제공,
+// - Null 안정성
+// - 제네릭 사용가능
+

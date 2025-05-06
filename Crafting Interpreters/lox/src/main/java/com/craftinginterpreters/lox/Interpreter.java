@@ -2,6 +2,8 @@ package com.craftinginterpreters.lox;
 
 
 
+import com.craftinginterpreters.lox.Expr.Array;
+import com.craftinginterpreters.lox.Expr.ArraySet;
 import com.craftinginterpreters.lox.Expr.Binary;
 import com.craftinginterpreters.lox.Expr.Grouping;
 import com.craftinginterpreters.lox.Expr.Literal;
@@ -148,6 +150,21 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
   }
 
   @Override
+  public Object visitArraySetExpr(ArraySet expr) {
+    Object object = evaluate(expr.callee);
+
+    if (!(object instanceof LoxArray)) {
+      throw new RuntimeError(expr.square, "Only array have items.");
+    }
+
+    Object index = evaluate(expr.index);
+    Object value = evaluate(expr.value);
+    ((LoxArray)object).set(expr.square, index, value);
+
+    return value;
+  }
+
+  @Override
   public Object visitSuperExpr(Expr.Super expr) {
     int distance = locals.get(expr);
     LoxClass superclass = (LoxClass) environment.getAt(distance, "super");
@@ -186,6 +203,16 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
   @Override
   public Object visitVariableExpr(Expr.Variable expr) {
     return lookUpVariable(expr.name, expr);
+  }
+
+  @Override
+  public Object visitArrayExpr(Array expr) {
+    LoxArray array = new LoxArray();
+    for(Expr item :expr.items) {
+      array.add(evaluate(item));
+    }
+
+    return array;
   }
 
   private Object lookUpVariable(Token name, Expr expr) {
@@ -402,9 +429,22 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     Object object = evaluate(expr.object);
     if (object instanceof LoxInstance) {
       return ((LoxInstance) object).get(expr.name);
+    } else if (object instanceof LoxArray) {
+      return ((LoxArray) object).getLength(expr.name);
     }
 
     throw new RuntimeError(expr.name, "Only instances have properties.");
+  }
+
+  @Override
+  public Object visitArrayGetExpr(Expr.ArrayGet expr) {
+    Object object = evaluate(expr.callee);
+    if (object instanceof LoxArray) {
+      Object index = evaluate(expr.index);
+      return ((LoxArray) object).get(expr.square, index);
+    }
+
+    throw new RuntimeError(expr.square, "Can only access array by index.");
   }
 
   public void setLatestPrimitiveCallLine(int latestPrimitiveCallLine) {
