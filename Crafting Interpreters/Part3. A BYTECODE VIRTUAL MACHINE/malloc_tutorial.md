@@ -255,7 +255,7 @@ struct s_block {
     struct s_block  *next;
     struct s_block  *prev;
     int             free;
-    void            *ptr;       // data 필드를 사용할수 있지만, 명시적으로 포인터를 선언
+    void            *ptr;       // data 필드를 사용할수 있지만, 명시적인 포인터 필드를 사용한다.
     char            data[1];
 }
 tpyedef struct s_block *t_block;
@@ -310,10 +310,10 @@ void free(void *p) {
 
 ## 6.3 Resizing chunks with realloc
 realloc 은 다음과 같은 알고리즘을 가진다.
-- malloc 을 사용해서 새로운 블락을 할당한다.
+- malloc 을 사용해서 새로운 블록을 할당한다.
 - 데이터를 카피한다.
-- 이전 블락을 해제한다.
-- 새로운 블락의 데이터부의 포인터를 돌려준다.
+- 이전 블록을 해제한다.
+- 새로운 블록의 데이터부의 포인터를 돌려준다.
 realloc(NULL, s) 는 malloc(s) 로 대체 될수 있어야 한다.
 ```c
 /* Copy data from block to block */
