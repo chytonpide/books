@@ -1,4 +1,4 @@
-# Introduction
+# 1 Introduction
 
 메모리가 어떻게 관리되는지 이해하기 위해 나이브한 malloc 을 직접 구현해 본다.
 malloc 의 요구사항은 다음과 같다.
@@ -9,14 +9,14 @@ malloc 의 요구사항은 다음과 같다.
 - malloc은 실행 시간이 지나치게 오래 걸려서는 안 된다 (NP-hard 문제가 되어서는 안 됨).
 - malloc은 메모리의 크기 조정(realloc)과 해제(free) 기능도 지원해야 한다.
 
-# The Heap and the brk and sbrk syscalls
+# 2 The Heap and the brk and sbrk syscalls
 
 brk, sbrk 는 리눅스의 syscall 이다.
 
 - int void * brk ( const void * addr ) : 힙의 break 를 addr 로 이동시킨다.
 - sbrk ( intptr_t incr ) : 힙을 increment 만큼 증가 시킨다음 시스템에 따라서 새로운 break 또는 이전 break 를 되돌려준다. 어떤 시스템이든 sbrk(0) 을 하면 현재 break 주소를 얻을 수 있다.
 
-# Dummy malloc
+# 3 Dummy malloc
 
 실용적이지 않지만 가장 간단한 구현은 다음과 같다. sbrk(0) 호출로 직전 break 주소를 확보하고, 다시 sbrk(size) 호출로 break 를 이동시킨다. 실패하면 null 을 돌려준다.
 free 그리고 realloc 는 불가능하다.
@@ -38,7 +38,7 @@ void * malloc ( size_t size )
 }
 ```
 
-# Organizing the Heap
+# 4 Organizing the Heap
 
 dummy malloc 은 모든 요구사항을 만족시키지 못한다. 보다 효율적이고 free 와 realloc 를 지원 할 수 있는 heap 의 조직화 방법을 모색한다.
 메모리를 클라이언트가 원하는 만큼 할당하고, 해제하고 다시 할당하기 위해서는, 할당된 메모리에 다음과 같은 추가적인 정보가 필요하다.
@@ -78,11 +78,11 @@ b-> size = size ;
 /* ... */
 ```
 
-# A First Fit Malloc
+# 5 A First Fit Malloc
 
 first fit 알고리즘을 사용한 malloc 을 구현한다. 알고리즘은 요청된 크기의 할당을 수용할 블복을 찾을때까지 청크 리스트를 순회하는 것이다.
 
-## Aligned Pointers
+## 5.1 Aligned Pointers
 
  
 포인터는 Integer 크기로 정렬할 필요가 있다. 32bit 환경에서는 기본 데이터 단위가 4바이트(32bit)이다. 메타 데이터 블록은 이미 4의 배수임으로 데이터 블록의 크기를 정렬하기 위해서
@@ -90,7 +90,7 @@ first fit 알고리즘을 사용한 malloc 을 구현한다. 알고리즘은 요
 `# define align4 (x) ((((( x) -1) > >2) < <2)+4)`  
 ![4byte_align](4byte.png)
 
-## Finding a chunk: the First Fit Algorithm
+## 5.2 Finding a chunk: the First Fit Algorithm
 
 base 부터 조건이 맞는 chunk 를 찾아서 순회한다.
 
@@ -106,12 +106,12 @@ t_block find_block(t_block *last, size_t size) {
 }
 ```
 
-## Extending the heap
-
-`#define BLOCK_SIZE sizeof(struct s_block)`
+## 5.3 Extending the heap
 sbrk를 사용해서 메타데이터사이즈 + 요구된 사이즈 만큼 힙을 확장시킨다. last 블록이 있다면, last->next 에 새 블록을 연결한다.
 
 ```c
+#define BLOCK_SIZE sizeof(struct s_block)
+
 t_block extend_heap(t_block last, size_t s) {
     t_block b;
     b = sbrk(0); //현재 heap 의 break point 주소 
@@ -127,7 +127,7 @@ t_block extend_heap(t_block last, size_t s) {
 }
 ```
 
-## Splitting blocks
+## 5.4 Splitting blocks
 
 블록을 나누어서 힙 공간의 낭비를 줄인다.  
 ![splitting_blocks](splitting_blocks.png)
@@ -158,7 +158,7 @@ void split_block(t_block b, size_t s) {
 }
 ```
 
-## The malloc function
+## 5.5 The malloc function
 
 malloc 은 우리가 구현한 함수들의 wrapper 이다.
 먼저 find block 에서 사용되는 전역변수는 다음과 같이 초기화 된다. `void *base=NULL;`
@@ -208,9 +208,9 @@ void *malloc(size_t size) {
 }
 ```
 
-# calloc, free and realloc
+# 6 calloc, free and realloc
 
-## calloc
+## 6.1 calloc
 
 calloc 은 오브젝트 가각의 크기 size 의 number 개 만큼의 메모리를 할당하고 모든 바이트공간은 0 으로 초기화 한다.
 
@@ -228,9 +228,9 @@ void *calloc(size_t number, size_t size) {
 }
 ```
 
-## free
+## 6.2 free
 
-### Fragmentation: the malloc illness
+### 6.2.1 Fragmentation: the malloc illness
 spilt 을 사용하기 때문에 메모리 공간이 계속해서 조각난다. 이를 해결하기 위해서 free 를 호출할 때 이웃하는 chunk 를 합친다.
 ```c
 t_block fusion(t_block b) {
@@ -243,7 +243,7 @@ t_block fusion(t_block b) {
     return(b);
 }
 ```
-### Finding the right chunk
+### 6.2.2 Finding the right chunk
 malloc 이 리턴한 포인터를 가지고 해당 메모리 블록을 다시 찾을 때 다음과 같은 문제가 있다.
 - 포인터가 malloc 이 되돌려준 포인터가 맞는지 확인해야 한다.
 - malloc 은 실제 데이터부의 포인터를 되돌려주기 때문에 메타데이터의 포인터를 찾아야 한다.
@@ -278,7 +278,7 @@ int valid_addr(void *p) {
     return (0);
 }
 ```
-### The free function
+### 6.2.3 The free function
 
 ```c
 /* The free */
@@ -308,7 +308,7 @@ void free(void *p) {
 } 
 ```
 
-## Resizing chunks with realloc
+## 6.3 Resizing chunks with realloc
 realloc 은 다음과 같은 알고리즘을 가진다.
 - malloc 을 사용해서 새로운 블락을 할당한다.
 - 데이터를 카피한다.
@@ -366,9 +366,8 @@ void *realloc(void *p, size_t size) {
     return(NULL);
 }
 ```
-### FreeBSD's realloc
+### 6.3.1 FreeBSD's realloc
 FreeBSD 에서 제공하는 reallocf 는 인수로 받은 포인터를 무조건 해제한다.
-/* See reallocf(3) */
 ```c
 void *reallocf(void *p, size_t size) {
     void *newp;
@@ -379,7 +378,7 @@ void *reallocf(void *p, size_t size) {
 }
 ```
 
-## Putting things together
+## 6.4 Putting things together
 
 ```c
 /* block struct */
