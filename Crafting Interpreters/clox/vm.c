@@ -9,8 +9,12 @@
 // 함수들이 vm 포인터를 받도록 하면 vm 포인터를 호스트 어플리케이션에게 노출함으로 더 많은 것들(vm 을 복수로 사용하기, 포인터위치 확인하기)이 가능해 진다.
 VM vm;
 
+static void resetStack() {
+  vm.stackTop = vm.stack;
+}
 
 void initVM() {
+  resetStack();
 }
 
 void freeVM() {
@@ -22,17 +26,25 @@ static InterpretResult run() {
 
   for (;;) {
 #ifdef DEBUG_TRACE_EXECUTION
-  disassembleInstruction(vm.chunk, (int)(vm.ip - vm.chunk->code))
+  printf("          ");
+  for (Value* slot = vm.stack; slot < vm.stackTop; slot++) {
+    printf("[");
+    printValue(*slot);
+    printf("]");
+  }
+  printf("\n");
+  disassembleInstruction(vm.chunk, (int)(vm.ip - vm.chunk->code));
 #endif
     uint8_t instruction;
     switch (instruction = READ_BYTE()) {
       case OP_CONSTANT: {
         Value constant = READ_CONSTANT();
-        printValue(constant);
-        printf("\n");
+        push(constant);
         break;
       }
       case OP_RETURN: {
+        printValue(pop());
+        printf("\n");
         return INTERPRET_OK;
       }
     }
@@ -46,5 +58,15 @@ InterpretResult interpret(Chunk* chunk) {
   vm.chunk = chunk;
   vm.ip = vm.chunk->code;
   return run();
+}
+
+void push(Value value) {
+  *vm.stackTop = value;
+  vm.stackTop++;
+}
+
+Value pop() {
+  vm.stackTop--;
+  return *vm.stackTop;
 }
 
