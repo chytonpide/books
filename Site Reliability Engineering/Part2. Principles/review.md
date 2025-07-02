@@ -22,11 +22,28 @@ availablity = successful requests / total requests
 구글에서는 분기별로 서비스의 가용성 목표를 설정하고 실제 성과를 매주 또는 매일 추적한다.  
 
 ### Risk Tolerance of Services
-These product managers are charged with understanding the users and the business, and for shaping the product for success in the marketplace.
+서비스의 위험 감수 한계 밝혀 낸다는 것은 서비스가 어느정도 실패를 허용할 수 있는지 밝혀내는 것으로 비지니스와 관련이 있다.
+이는 비지니스 목표를 기반으로 엔지니어링 목표가 될 수 있는 명시적인 서비스 제공 수준을 만들어 내는 것을 의미한다.
+서비스의 위험 감수 한계를 평하할 때 목표 가용성 수준, 실패의 종류, 비용을 고려해야 한다.
+커스터머 서비스와 인프라스트럭쳐 서비스의 위험 내성의 양상은 조금 다르다.
 
-The target level of availability for a given Google service usually depends on the function it provides and how the service is positioned in the marketplace.
+#### Identifying the Risk Tolerance of Consumer Services
+커스터머 서비스(ex, 구글맵, 구글독)에서는 제품개발팀의 비지니스 오너로 활동한다. 
+프러덕트 메니저는 마켓 플레이스에서 프러덕트의 성공을 위해 유저와 비지니스에 대해서 이해할 책임이 있는데, 프러덕트 팀에서 신뢰성 요구사항을 논의한다.
 
-Types of failures 계속..
+목표 가용성 수준: 경쟁서비스 서비스의 유무료 여부 등에 따라서 결정된다.
+실패의 종류: 데이터의 종류에 따라 취해야 하는 행동이 달라진다. 개인정보와 관련된 실패는 장애 기간이 길어지더라도 철저한 점검이 필요하다.
+비용: 신뢰성과 그에 따른 수익을 비교해서 신뢰성을 올리는데 필요한 비용이, 신뢰성을 올렸을 때 발생하는 추가적인 수익보다 적다면 시도해 볼만하다. 
+하지만 이러한 신뢰성과 수익에 대한 함수 도출은 쉽지 않다.
+다른 메트릭: 가용성을 제외한 메트릭도 위험 감수 한계를 평가할 때 도움이 될 수 있다. 예를들어 어떤 서비스는 지연시간이 중요하지만, 다른 서비스에서는 중요하지 않다.
+느슨한 지연시간 요구사항을 밝혀내면 운영비용을 절감 할 수 있다. 
+
+#### Identifying the Risk Tolerance of Infrastructure Services
+인프라스트럭처 서비스는 인프라스트럭쳐 서비스(ex, 빅테이블)의 경우 클라이언트가 다양하고 요구사항도 다양하다. 
+예를들어 산출량이 중요한 유저도 있고, 지연시간이 중요한 유저도 있다.
+저지연을 요구하는 사용자는 요청 큐가 계속해서 비어있기를 원하고 , 산출량을 원하는 사용자 전체 처리의 효율성을 위해서 항상 큐가 가득차 있기을 원한다.
+이처럼 상반된 목표를 가지고 있는 경우.
+서로 다른 요구사항을 만족하는 복수의 클러스터로 서비스 수준을 제공하는것으로 이 문제를 해결 할 수 있다.
 
 
 
@@ -34,6 +51,7 @@ Types of failures 계속..
 
 에러 버짓은 SRE 와 제품 개발팀의 동인을 일치 시키고 공동의 소유권을 강조한다.
 에러 버짓은 구체적인 수치로써 여러 팀에 걸쳐서 의사소통을 원할하게 하며 출시 속도를 결정하는데 도움을 준다.
+
 
 
 
