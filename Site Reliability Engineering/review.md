@@ -8,6 +8,8 @@
 
 
 
+"our goal is to define an objective metric, agreed upon by both sides, that can be used to guide the negotiations in a reproducible way. The more data-based the decision can be, the better."
+
 - SLO 가 중요하다. 목적 없이는 평가도 관리도 할 수 없다. 이것으로 인센티브가 설계된다.
 - 리스크를 수용해야한다.
 - 프로젝트와 운영업무는 반반이어야 한다. 이를 통해 SREs 를 유치할 수 있고 SREs 를 통해 확장성의 레버리지를 달성 할 수 있다.
