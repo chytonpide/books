@@ -186,8 +186,38 @@ toil 로 간주되는 일이 모든 속성을 가지지는 않고, 아래 기술
 - No enduring value: 어떤 작업을 마친 후에도 서비스의 상태가 이전과 동일하다면 그것은 toil 일 확률이 높다. 서비스에 영구적인 개선을 가지고 온다면 toil 이 아니다. 
 legacy-code 와 설정을 파고들어서 이것들을 바로잡는 것은 지저분한(Grunt) 일 이지만 toil 이 아니다.
 - O(n) with service growth: 작업과 관련된 일이 서비스가 성장함에 따라 선형적으로 같이 증가하면 그것은 toil 이다.
-이상적으로 설계되고 관리되는 서비스는 작업량이 늘지 않는 상태 또는 리소스 추가 만으로 한자릿수 이상 성장 할 수 있어야 한다.     
+이상적으로 설계되고 관리되는 서비스는 작업량이 늘지 않는 상태 또는 리소스 추가 만으로 한자릿수 이상 성장 할 수 있어야 한다.
 
+### Why Less Toil Is Better
+toil 은 방치하면 계속해서 증가한다. toil 을 줄이는 엔지니어링을 수행하기 때문에 인력과 서비스의 규모의 선형관계의 기울기를 낮게 유지할 수 있다.
+#### Calculating Toil
+온콜 근무중에는 toil 을 감당해야 한다. 6명이서 한 주는 프라이머리 온콜러, 다른 한주는 세컨더리 온콜러로 일하면 6주 중에 2주, 
+33% 가 운영업무를 하는데 사용하는 시간이 된다.
+통계에 따르면 toil 의 원천 되는것의 크기는 인터럽트, 그리고 릴리즈 작업 순이다.
+
+### What Qualifies as Engineering
+엔지니어링은 본질적으로 인간의 판단이 필요하며 지속되는 개선을 만든다.
+SRE 의 활동은 일반적으로 다음과 같은 범주에 속한다.
+- Software Engineering: 코드작성 설계, 문서화 기능추가 
+- System Engineering: 설정변경, 문서화, 모니터링 셋업 및 업데이트 같은 지속되는 일발성 노력
+- Toil: 서비스 운영과 직접적으로 묶여있는 반복적인 작업
+- Overhead: 서비스운영과 직접적으로 묶여있지 않은 관리업무, 인사(채용/평가), 교육등
+
+※ Software Engineering 를 공정으로 보기 보다는, 소프트웨어를 만드는 과정 전체를 Software Engineering의 범주에 포함시켜서 생각하자. (self-contained)
+
+### Is Toil Always Bad?
+toil 은 무조건 적으로 나쁜건 아니다. 어느정도의 toil 은 피할 수 없다. 양이 많을때 toil 은 독이 된다.
+- Career stagnation: 프로젝트를 하지 않으면 커리어가 발전하지 않는다.
+- Low morale: 어느 정도의 toil 을 견딜 수 있는지는 사람마다 다르며, 양이 너무 많아지면 사기가 꺾인다.
+- Create confusion: SRE 팀은 engineering 조직이지만 역할에 대한 명확학 메세지가 저해된다.
+- Slows progress: 제품 개발속도가 줄어든다. 
+- Sets precedent(선례설정): 대응관계의 제품 개발팀이 잘못된 기대를 하게되고, 다른 sre 와 dev 팀의 관계에도 영향을 미친다.
+- Promotes attrition(이탈촉진): 뛰어난 엔지니어가 떠날 수도 있다.  
+- Causes breach of faith(신뢰를 잃음): SRE 가 기본적으로 엔지니어링 롤 이라는 기대를 배신한다.  
+
+### Conclusion
+매주 약간의 toil 을 제거 하는데 힘을 쓴다면, 그 에너지를 엔지니어링에 쏟을 수 있다. 
+--------------------
 
 ## 분산시스템 감시 (Monitoring Distributed Systems)
 모니터를 하지 않으면 시스템에 무슨일이 일어나는지 알 수 없다.  
