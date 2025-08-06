@@ -401,10 +401,25 @@ SRE는 자동화 분야에 여러 철학과 제품을 가지고 있다. 어떤 �
 ※ [Leaky abstraction](https://en.wikipedia.org/wiki/Leaky_abstraction): 
 복잡한 시스템의 세부사항을 감추고 단순화 하려는 추상화가 완전히 기능하지 못해서, 일부 구현 세부사항이 새어나오는 설계 결함.
 사용자는 시스템을 효과적으로 사용하거나 문제를 해결하기 위해서 원래 숨기려고 했던 복잡성을 일부 이해해야한 한다.
- 
 
 #### A Hierarchy of Automation Classes (자동화 위계의 분류)
+외부적인 연결 로직이 필요한 시스템 보다 애초에 그러한 연결 로직이 필요없도록 설계된 시스템이 바람직하다.
+따라서 이상적인 세계에서는 외부화된 자동화가 필요 없을 것이다.
 
+구글의 turnup 자동화는 핵심 시스템과 별도로 관리 되기 때문에, 시스템이 바뀌어도 자동화는 그에 맞춰서 변하지 않는 부패가 일어난다. 
+중요하지만 실행 빈도가 낮은 자동화는 피드백 주기가 길어서 오류를 인지하고 수정하는데 시간이 오래 걸리기 대문에 더 취약하다. 
+(예를들어 몇달에 한번씩 일어나는 클러스터 복구)
+긴 피드백 주기동안 많은 변경이 자동화 반영되지 않을 수 있다.
+
+자동화는 다음과 같은 진화의 길을 따른다.
+- No automation
+- Externally maintained system-specific automation
+- Externally maintained generic automation
+- Internally maintained system-specific automation
+- Systems that don't need any automation 
+
+구글에서 프러덕션 환경 전체에 변경을 적용하는 자동화가 있는데 이런 작업은 사실상 수동작업이 불가능하다.(규모가 크기 때문에 안전한 적용과 문제가 생겼을 때의 롤백 같은 것들을 수동으로 할 수 없다.)
+설사 그렇지 않더라도 변경을 적용하는 작업(재시작 후 확인)에 사람이 개입하는것은 시간낭비 일 수 있다.
 
 
 
