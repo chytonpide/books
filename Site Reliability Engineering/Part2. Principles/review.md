@@ -488,6 +488,7 @@ Prodtest는 테스트 간 의존 관계를 지원해, 하나의 테스트가 실
 - Internally maintained system-specific automation
 - Autonomous systems that need no human intervention
 
+## Case Studies
 ### Borg: Birth of the Warehouse-Scale Computer
 단순한 시작점에서 점진적 진화를 통해서 완성된 클러스터 관리 시스템의 발전 역사는 다음와 같다.
 
@@ -510,6 +511,11 @@ borg 시스템은 하나의 컴퓨터에서 일어나는 일과 클러스터관�
 전역 컴퓨터는 그렇지않다. 일정 규모가 넘어가면 통계적으로 많은 장애가 발생하기 때문에 스스로 복구하는 능력이 있어야 한다.
 결국 이는 수동에서 자동, 자율적으로 발전함에 따라서, 자기 성찰 능력이 필요하다.
 
+## Reliability Is the Fundamental Feature
+과도한 자동화는 수동으로 시스템을 운영하는 능력을 상실케 한다.
+그렇다 하더라도 자동화나 자율화기 옵션이 아닌 시스템이 더 많아지고 있다.
+규모가 커질수록 자동화나 자율화의 요구사힝이 필수가 되기도 하지만,
+시스템의 크기에 상과없이 시스템의 핵심적인 기능인 신뢰성을 달성하기 위해서는 자율적이고 회복력 있는 시스템을 만들어야 한다. 
 
 --------------------
 
