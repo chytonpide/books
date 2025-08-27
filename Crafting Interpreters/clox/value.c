@@ -4,7 +4,7 @@
 #include "value.h"
 
 void initValueArray(ValueArray* array) {
-  array->values = NULL;
+  array->values = NULL; // 포인터는 Null 로 초기화 되고 이후, writeValueArray->GROW_ARRAY->malloc 에 의해서 공간이 할당된다.
   array->capacity = 0;
   array->count = 0;
 }
@@ -26,5 +26,5 @@ void freeValueArray(ValueArray* array) {
 }
 
 void printValue(Value value) {
-  printf("%g", value);
+  printf("%g", AS_NUMBER(value));
 }
