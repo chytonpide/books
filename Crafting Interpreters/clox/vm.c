@@ -1,3 +1,4 @@
+#include <stdarg.h>
 #include <stdio.h>
 
 #include "common.h"
@@ -12,6 +13,19 @@ VM vm;
 
 static void resetStack() {
   vm.stackTop = vm.stack;
+}
+
+static void runtimeError(const char* format, ...) {
+  va_list args;
+  va_start(args, format);
+  vfprint(stderr, format, args);
+  va_end(args);
+  fputs("\n", stderr);
+
+  size_t instruction = vm.ip - vm.chunk->code - 1; // run()에서 READ_BYTE() 를 호출해서 ip가 이미 1 증가 한 상태임으로 -1 을 해야 직전 instruction 을 구할 수 있다.
+  int line = vm.chunk->lines[instruction]; // writeChunk() 에서 line 과 code 는 같이 설정됨으로
+  fprintf(stderr, "[line %d] in script\n", line);
+  resetStack();
 }
 
 void initVM() {
@@ -53,7 +67,13 @@ static InterpretResult run() {
       case OP_SUBTRACT: BINARY_OP(-); break;
       case OP_MULTIPLY: BINARY_OP(*); break;
       case OP_DIVIDE:   BINARY_OP(/); break;
-      case OP_NEGATE: push(-pop()); break;
+      case OP_NEGATE:
+        if (!IS_NUMBER(peek(0))) {
+          runtimeError("Operand must be a number.")
+          return INTERPRET_RUNTIME_ERROR;
+        }
+        push(NUMBER_VAL(-AS_NUMBER(pop())));
+        break;
       case OP_RETURN: {
         printValue(pop());
         printf("\n");
@@ -93,5 +113,9 @@ void push(Value value) {
 Value pop() {
   vm.stackTop--;
   return *vm.stackTop;
+}
+
+static Value peek(int distance) {
+  return vm.stackTop[-1 - distance];
 }
 
