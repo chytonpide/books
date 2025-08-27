@@ -137,3 +137,10 @@ stage 또한 식별자로 활용 되기 때문에 stage 의 이름을 바꾸고 
 - `sst deploy --stage production` : 배포
 - `sst remove --stage <name> : 삭제
     - `removal: input?.stage === "production" ? "retain" : "remove",` : sst.config.ts 설정을 하면, production 일 경우에는 s3, rds 같은걸 삭제 하지 않고 유지(retain) 하게 할 수 있다.
+
+## 초기설정
+### Aws 유저 추가
+IAM 에서 user 생성후 access-key 생성, 아래 커맨드로 유저 추가
+`aws configure --profile sst.nconnect`
+### 특정 유저로 sst 실행하기
+`AWS_PROFILE=sst.nconnect bun sst dev`
