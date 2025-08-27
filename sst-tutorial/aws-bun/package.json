@@ -1,0 +1,19 @@
+{
+  "name": "aws-bun",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/aws-lambda": "8.10.152",
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "scripts": {
+    "dev": "bun run --watch index.ts"
+  },
+  "dependencies": {
+    "sst": "3.17.10"
+  }
+}
