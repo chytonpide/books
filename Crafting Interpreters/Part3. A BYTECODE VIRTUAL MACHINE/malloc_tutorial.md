@@ -346,6 +346,7 @@ void *realloc(void *p, size_t size) {
             }
         } else {
             /* Try fusion with next if possible */
+            // 다음 블록이랑 합치면 s 만큼 크기를 확보할수 있다면 합친 후에, 가능하다면 split 으로 최적화 한다.
             if (b->next && b->next->free && (b->size + BLOCK_SIZE + b->next->size) >= s) {
                 fusion(b);
                 if (b->size - s >= (BLOCK_SIZE + 4))
