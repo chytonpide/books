@@ -3,6 +3,7 @@
 
 #include "memory.h"
 #include "value.h"
+#include "object.h"
 
 void initValueArray(ValueArray* array) {
   array->values = NULL; // 포인터는 Null 로 초기화 되고 이후, writeValueArray->GROW_ARRAY->malloc 에 의해서 공간이 할당된다.
@@ -44,10 +45,12 @@ bool valuesEqual(Value a, Value b) {
     case VAL_NIL:     return true;
     case VAL_NUMBER:  return AS_NUMBER(a) == AS_NUMBER(b);
     case VAL_OBJ: {
-      ObjString* aString = AS_STRING(a);
-      ObjString* bString = AS_STRING(b);
-      return aString->length == bString->length && memcmp(aString->chars, bString->chars, aString->length) == 0;
-    }
+          ObjString* aString = AS_STRING(a);
+          ObjString* bString = AS_STRING(b);
+          return aString->length == bString->length &&
+              memcmp(aString->chars, bString->chars,
+                     aString->length) == 0;
+        }
     default:          return false; // Unreachable
   }
 }

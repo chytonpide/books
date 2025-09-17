@@ -148,7 +148,6 @@ static Token identifier() {
 
 static Token number() {
   while (isDigit(peek())) advance();
-
   // Look for a fractional part.
   if (peek() == '.' && isDigit(peekNext())) {
     // Consume the ".".
