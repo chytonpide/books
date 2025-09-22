@@ -110,7 +110,7 @@ sst 상의 논리적인 component 는 디플로이 하면 AWS 의 resource 가 �
 이미 작성된 resource 를 import 하는것, 외부에서 관리하는 리소스에 대한 reference 를 가지는것, 리소스를 stage 간에 공유하는 것도 가능하다.
 
 ### Linking
-sst.config.ts 에서 어떤 컴퍼넌트에 `link` 할지 설정하면, 러타임에서 사용될 코드에서 그 `resource` 에 대한 참조를 얻을 수 있다. 
+sst.config.ts 에서 어떤 컴퍼넌트에 `link` 할지 설정하면, 런타임에서 사용될 코드에서 그 `resource` 에 대한 참조를 얻을 수 있다. 
 ```ts
 import { Resource } from "sst";
 
@@ -137,6 +137,7 @@ stage 또한 식별자로 활용 되기 때문에 stage 의 이름을 바꾸고 
 - `sst deploy --stage production` : 배포
 - `sst remove --stage <name> : 삭제
     - `removal: input?.stage === "production" ? "retain" : "remove",` : sst.config.ts 설정을 하면, production 일 경우에는 s3, rds 같은걸 삭제 하지 않고 유지(retain) 하게 할 수 있다.
+- sst refresh : 고아가된 참조 고치기 
 
 ## 초기설정
 ### Aws 유저 추가
