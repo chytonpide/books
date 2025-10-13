@@ -7,6 +7,7 @@ compile-clox:
 			Crafting\ Interpreters/clox/scanner.c \
 			Crafting\ Interpreters/clox/compiler.c \
 			Crafting\ Interpreters/clox/object.c \
+			Crafting\ Interpreters/clox/table.c \
 			Crafting\ Interpreters/clox/vm.c \
     	    Crafting\ Interpreters/clox/main.c \
     	    -o clox
