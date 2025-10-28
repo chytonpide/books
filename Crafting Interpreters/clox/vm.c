@@ -119,8 +119,18 @@ static InterpretResult run() {
       case OP_TRUE:     push(BOOL_VAL(true)); break;
       case OP_FALSE:    push(BOOL_VAL(false)); break;
       case OP_POP:      pop(); break;
+      case OP_GET_LOCAL: {
+        uint8_t slot = READ_BYTE(); // OP_GET_LOCAL 의 피연산자로 ip 에 stack 의 index 가 설정되어있다.
+        push(vm.stack[slot]);
+        break;
+      }
+      case OP_SET_LOCAL: {
+        uint8_t slot = READ_BYTE();
+        vm.stack[slot] = peek(0); // 지역변수의 슬롯에, stack 저장된 값을 할당한다. 스택에서 값을 팝하지는 않는다.
+        break;
+      }
       case OP_GET_GLOBAL: {
-        ObjString* name = READ_STRING();
+        ObjString* name = READ_STRING(); // OP_GET_GLOBAL 의 피연산자로  ip 에  stack 의 index 가 설정되어 있다. 그것을 사용해서 stack 에서 name string 읽어 온다.
         Value value;
         if (!tableGet(&vm.globals, name, &value)) {
           runtimeError("Undefined variable '%s'.", name->chars);
