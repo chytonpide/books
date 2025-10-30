@@ -2,10 +2,42 @@
 UI프레임워크로, 마크업, 스타일 및 동작을 결합한 컴포넌트로 앱을 선언적으로 구축할 수 있게 한다.
 
 ## Runes
-룬은 svelte 컴파일러를 제어하기 위해 사용하는 심볼, 언어로 치자면 구문의 키워드(제어문의 일부가 되는) 이다.
+룬은 svelte 컴파일러를 제어하기 위해 사용하는 심볼, 언어로 치자면 구문의 키워드(제어문의 일부가 되는) 이다. 
+반응성의 구조를 명시적으로 표현하기 위해서 Svelte5 부터 도입
 - $state: $state 룬은 반응형 상태를 생성할 수 있게 해주며, 이는 상태가 변경될 때 UI가 반응함을 의미한다.
 - $derived: 파생된 상태로, state 값이 변경될 때 같이 변경되는 값, component 의 코드(script)는 생성될때 한번만 실행된다. 
-- $effect: 이펙트는 상태가 업데이트될 때 실행되는 함수이다. 이들은 오직 브라우저에서 실행된다. 
+- $effect: 이펙트는 상태가 업데이트될 때 실행되는 함수이다. 이들은 오직 브라우저에서 실행된다.
+- $props: `export let varName` 의 룬 버전
+- $bindable: 템플릿 구문에서 bind: 지시어를 사용할 수 있음을 명시적으로 지정
+- $inspect: 개발시 사용, 값이 변할때만 출력된다.
+  - {@debug ...} 문장은 개발자 도구가 열려있으면 break point 로 동작한다.
+- $host: 부모에서 bind:this 지시어를 사용해서 변수에 할당한 다음, 컴포넌트에서 노출한 인터페이스를 호출 할 수 있게 한다.
+  - 상태 변화에 의존하지 않고, 직접 명령으로 동작을 제어하는게 어울리는, imperative 제어가 필요한 컴포넌트에 사용.
+    - ex)
+```js
+  modalRef.open();
+  modalRef.close();
+  player.play()
+```
+## Runtime
+- Stores: 전역 스코프 값 저장소.
+- Context: 부모 스코프에 접근할 수있는 값 저장소.
+- Lifecycle hooks: onMount, onDestroy, tick: 반응성 업데이트가 DOM에 적용된 뒤에 실행되는 Promise -
+  - tick ex)
+```js
+function showModal() {
+  visible = true;
+  const modal = document.querySelector('.modal'); // ❌ 아직 존재하지 않음(dom 업데이트 안됨)
+}
+
+async function showModal() {
+  visible = true;
+  await tick(); // ✅ DOM 반영 완료 대기
+  const modal = document.querySelector('.modal');
+  modal.focus();
+}
+```
+
 
 # Note
 - 스벨트 파일구조
