@@ -44,7 +44,15 @@ typedef struct {
   int depth;
 } Local;
 
+typedef enum {
+  TYPE_FUNCTION,
+  TYPE_SCRIPT
+} FunctionType;
+
 typedef struct {
+  ObjFunction* function;
+  FunctionType type;
+
   Local locals[UINT8_MAX];
   int localCount;
   int scopeDepth;
@@ -52,10 +60,9 @@ typedef struct {
 
 Parser parser;
 Compiler* current = NULL;
-Chunk* compilingChunk;
 
 static Chunk* currentChunk() {
-  return compilingChunk;
+  return &current->function->chunk;
 }
 
 static void errorAt(Token* token, const char* message) {
@@ -170,19 +177,31 @@ static void patchJump(int offset) {
   currentChunk()->code[offset + 1] = jump & 0xff;
 }
 
-static void initCompiler(Compiler* compiler) {
+static void initCompiler(Compiler* compiler, FunctionType type) {
+  compiler->function = NULL;
+  compiler->type = type;
   compiler->localCount = 0;
   compiler->scopeDepth = 0;
+  compiler->function = newFunction();
   current = compiler;
+
+  Local* local = &current->locals[current->localCount++];
+  local->depth = 0;
+  local->name.start = "";
+  local->name.length = 0;
 }
 
 static void endCompiler() {
   emitReturn();
+  ObjFunction* function = current->function;
+
 #ifdef DEBUG_PRINT_CODE
   if (!parser.hadError) {
-    disassembleChunk(currentChunk(), "code");
+    disassembleChunk(currentChunk(), function->name != NULL? function->name->chars : "<script>");
   }
 #endif
+
+  return function;
 }
 
 static void beginScope() {
@@ -213,7 +232,7 @@ static bool identifiersEqual(Token* a, Token* b) {
   return memcmp(a->start, b->start, a->length) == 0;
 }
 
-static int resolveLocal(Compiler* compiler, Token* token) {
+static int resolveLocal(Compiler* compiler, Token* name) {
   for (int i = compiler->localCount - 1; i >= 0; i--) { // 쉐도잉을 지원하기 위해서 바깥쪽부터 찾는다.
     Local* local = &compiler->locals[i];
     if (identifiersEqual(name, &local->name)) {
@@ -380,7 +399,7 @@ static void forStatement() {
     patchJump(bodyJump);
   }
 
-  statement()
+  statement();
   emitLoop(loopStart);  // OP_LOOP와, 증가절 시작 위치가 피연산자로 청크에 emit 된다. 증가절에는 다시 조건 시작절 위치로의 OP_LOOP가 있다. 조건절에는 다시 body 로의 OP_JUMP_IF_FALSE 가 있다.
 
   if (exitJump != -1) {
@@ -394,7 +413,8 @@ static void forStatement() {
 static void ifStatement() {
   consume(TOKEN_LEFT_PAREN, "Expect '(' after 'if'.");
   expression();
-  consume(TOKEN_RIGHT_PAREN);
+  consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
+
 
   int thenJump = emitJump(OP_JUMP_IF_FALSE);
   emitByte(OP_POP);
@@ -417,9 +437,9 @@ static void printStatement() {
 
 static void whileStatement() {
   int loopStart = currentChunk()->count;
-  consume(TOKEN_LEFT_PAREN, "Expect '(' after 'while'.")
+  consume(TOKEN_LEFT_PAREN, "Expect '(' after 'while'.");
   expression();
-  consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.")
+  consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
 
   int exitJump = emitJump(OP_JUMP_IF_FALSE);
   emitByte(OP_POP);
@@ -615,11 +635,10 @@ static ParseRule* getRule(TokenType token) {
   return &rules[token];
 }
 
-bool compile(const char* source, Chunk* chunk) {
+ObjFunction compile(const char* source) {
   initScanner(source);
   Compiler compiler;
-  initCompiler(&compiler);
-  compilingChunk = chunk;
+  initCompiler(&compiler, TYPE_SCRIPT);
 
   parser.hadError = false;
   parser.panicMode = false;
@@ -630,6 +649,6 @@ bool compile(const char* source, Chunk* chunk) {
     declaration();
   }
 
-  endCompiler();
-  return !parser.hadError;
+  ObjFunction* function = endCompiler();
+  return !parser.hadError ? NULL : function;
 }
