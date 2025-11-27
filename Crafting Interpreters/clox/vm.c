@@ -16,6 +16,7 @@ VM vm;
 
 static void resetStack() {
   vm.stackTop = vm.stack;
+  vm.frameCount = 0;
 }
 
 static void runtimeError(const char* format, ...) {
@@ -25,8 +26,9 @@ static void runtimeError(const char* format, ...) {
   va_end(args);
   fputs("\n", stderr);
 
-  size_t instruction = vm.ip - vm.chunk->code - 1; // run()에서 READ_BYTE() 를 호출해서 ip가 이미 1 증가 한 상태임으로 -1 을 해야 직전 instruction 을 구할 수 있다.
-  int line = vm.chunk->lines[instruction]; // writeChunk() 에서 line 과 code 는 같이 설정됨으로
+  CallFrame* frame = &vm.frames[vm.frameCount - 1];
+  size_t instruction = frame->ip - frame->function->chunk.code - 1;
+  int line = frame->function->chunk.lines[instruction]; // writeChunk() 에서 line 과 code 는 같이 설정됨으로
   fprintf(stderr, "[line %d] in script\n", line);
   resetStack();
 }
@@ -83,10 +85,16 @@ static void concatenate() {
 
 
 static InterpretResult run() {
-#define READ_BYTE() (*vm.ip++)
-#define READ_CONSTANT() (vm.chunk->constants.values[READ_BYTE()])
-#define READ_SHORT() (vm.ip += 2, (uint16_t)((vm.ip[-2] << 8) | vm.ip[-1]) )
+  CallFrame* frame = &vm.frames[vm.frameCount - 1];
+
+#define READ_BYTE() (*frame->ip++)
+
+#define READ_SHORT() (frame->ip +=2, (uint16_t)((frame->ip[-2] << 8) | frame->ip[-1]))
+
+#define READ_CONSTANT() (frame->function->chunk.constants.values[READ_BYTE()])
+
 #define READ_STRING() AS_STRING(READ_CONSTANT())
+
 #define BINARY_OP(valueType, op) \
     do { \
       if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) { \
@@ -107,7 +115,7 @@ static InterpretResult run() {
     printf("]");
   }
   printf("\n");
-  disassembleInstruction(vm.chunk, (int)(vm.ip - vm.chunk->code));
+  disassembleInstruction(&frame->function->chunk, (int)(frame->ip - frame->function->chunk.code)); // &frame->function->chunk 는 chunk 에 대한 포인터를 넘겨준다.
 #endif
     uint8_t instruction;
     switch (instruction = READ_BYTE()) {
@@ -122,12 +130,12 @@ static InterpretResult run() {
       case OP_POP:      pop(); break;
       case OP_GET_LOCAL: {
         uint8_t slot = READ_BYTE(); // OP_GET_LOCAL 의 피연산자로 ip 에 stack 의 index 가 설정되어있다.
-        push(vm.stack[slot]);
+        push(frame->slots[slot]);
         break;
       }
       case OP_SET_LOCAL: {
         uint8_t slot = READ_BYTE();
-        vm.stack[slot] = peek(0); // 지역변수의 슬롯에, stack 저장된 값을 할당한다. 스택에서 값을 팝하지는 않는다.
+        frame->slots[slot] = peek(0); // 지역변수의 슬롯에, stack 저장된 값을 할당한다. 스택에서 값을 팝하지는 않는다.
         break;
       }
       case OP_GET_GLOBAL: {
@@ -196,17 +204,17 @@ static InterpretResult run() {
         break;
       case OP_JUMP: {
         uint16_t offset = READ_SHORT();
-        vm.ip += offset;
+        frame->ip += offset;
         break;
       }
       case OP_JUMP_IF_FALSE: {
         uint16_t offset = READ_SHORT();
-        if (isFalsy(peek(0))) vm.ip += offset;
+        if (isFalsy(peek(0))) frame->ip += offset;
         break;
       }
       case OP_LOOP: {
         uint16_t offset = READ_SHORT();
-        vm.ip -= offset;
+        frame->ip -= offset;
         break;
       }
       case OP_RETURN: {
@@ -224,19 +232,14 @@ static InterpretResult run() {
 }
 
 InterpretResult interpret(const char* source) {
-  Chunk chunk;
-  initChunk(&chunk);
+  ObjFunction* function = compile(source);
+  if (function == NULL) return INTERPRET_RUNTIME_ERROR;
 
-  if (!compile(source, &chunk)) {
-    freeChunk(&chunk);
-    return INTERPRET_COMPILE_ERROR;
-  }
+  push(OBJ_VAL(function));
+  CallFrame* frame = &vm.frames[vm.frameCount++];
+  frame->function = function;
+  frame->ip = function->chunk.code;
+  frame->slots = vm.stack;
 
-  vm.chunk = &chunk;
-  vm.ip = vm.chunk->code;
-
-  InterpretResult result = run();
-
-  freeChunk(&chunk);
-  return result;
+  return run();
 }
