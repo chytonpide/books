@@ -1,6 +1,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 #include "common.h"
 #include "compiler.h"
@@ -13,6 +14,10 @@
 // 매번 vm 포인터를 넘기느니 그냥 전역변수로 선언한다. 이 설계는 지면을 줄이기위한 것이다.
 // 함수들이 vm 포인터를 받도록 하면 vm 포인터를 호스트 어플리케이션에게 노출함으로 더 많은 것들(vm 을 복수로 사용하기, 포인터위치 확인하기)이 가능해 진다.
 VM vm;
+
+static Value clockNative(int argCount, Value* args) {
+  return NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
+}
 
 static void resetStack() {
   vm.stackTop = vm.stack;
@@ -33,12 +38,22 @@ static void runtimeError(const char* format, ...) {
   resetStack();
 }
 
+static void defineNative(const char* name, NativeFn function) {
+  push(OBJ_VAL(copyString(name, (int)strlen(name))));
+  push(OBJ_VAL(newNative(function)));
+  tableSet(&vm.globals, AS_STRING(vm.stack[0]), vm.stack[1]);
+  pop();
+  pop();
+}
+
 void initVM() {
   resetStack();
   vm.objects = NULL;
 
   initTable(&vm.globals);
   initTable(&vm.strings);
+
+  defineNative("clock", clockNative);
 }
 
 void freeVM() {
@@ -59,6 +74,34 @@ Value pop() {
 
 static Value peek(int distance) {
   return vm.stackTop[-1 - distance];
+}
+
+static bool call(ObjFunction* function, int argCount) {
+  CallFrame* frame = &vm.frames[vm.frameCount++]; // 주소 공간 가지고 오기
+  frame->function = function;
+  frame->ip = function->chunk.code;
+  frame->slots = vm.stackTop - argCount - 1;
+  return true;
+}
+
+static bool callValue(Value callee, int argCount) {
+  if (IS_OBJ(callee)) {
+    switch (OBJ_TYPE(callee)) {
+      case OBJ_FUNCTION:
+        return call(AS_FUNCTION(callee), argCount);
+      case OBJ_NATIVE: {
+        NativeFn native = AS_NATIVE(callee);
+        Value result = native(argCount, vm.stackTop - argCount);
+        vm.stackTop -= argCount + 1;
+        push(result);
+        return true;
+      }
+      default:
+        break; // Non-callable object type;
+    }
+  }
+  runtimeError("Can only call functions and classes.");
+  return false;
 }
 
 static bool isFalsy(Value value) {
@@ -217,9 +260,26 @@ static InterpretResult run() {
         frame->ip -= offset;
         break;
       }
+      case OP_CALL: {
+        int argCount = READ_BYTE();
+        if (!callValue(peek(argCount), argCount)) { // peek(argCount) stack 에서 argCount 만큼 거슬러 올라간 것을 돌려줌
+          return INTERPRET_RUNTIME_ERROR;
+        }
+        frame = &vm.frames[vm.frameCount - 1];
+        break;
+      }
       case OP_RETURN: {
-        // Exit interpreter.
-        return INTERPRET_OK;
+        Value result = pop();
+        vm.frameCount--;
+        if (vm.frameCount == 0) {
+          pop();
+          return INTERPRET_OK;
+        }
+
+        vm.stackTop = frame->slots;
+        push(result);
+        frame = &vm.frames[vm.frameCount - 1];
+        break;
       }
     }
   }
@@ -236,10 +296,7 @@ InterpretResult interpret(const char* source) {
   if (function == NULL) return INTERPRET_RUNTIME_ERROR;
 
   push(OBJ_VAL(function));
-  CallFrame* frame = &vm.frames[vm.frameCount++];
-  frame->function = function;
-  frame->ip = function->chunk.code;
-  frame->slots = vm.stack;
+  call(function, 0);
 
   return run();
 }
