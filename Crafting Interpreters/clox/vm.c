@@ -77,6 +77,11 @@ static Value peek(int distance) {
 }
 
 static bool call(ObjFunction* function, int argCount) {
+  if (argCount != function->arity) {
+     runtimeError("Expected %d arguments but got %d.", function->arity, argCount);
+     return false;
+  }
+
   CallFrame* frame = &vm.frames[vm.frameCount++]; // 주소 공간 가지고 오기
   frame->function = function;
   frame->ip = function->chunk.code;
