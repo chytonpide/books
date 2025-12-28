@@ -14,3 +14,6 @@ compile-clox:
 
 run-clox:
 	./clox
+
+run-clox-with-script:
+	./clox ./lox-script.txt
