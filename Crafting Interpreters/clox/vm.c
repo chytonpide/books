@@ -142,6 +142,15 @@ static ObjUpvalue* captureUpvalue(Value* local) {
   return createdUpvalue;
 }
 
+static void closeUpvalues(Value* last) {
+  while (vm.openUpvalues != NULL && vm.openUpvalues->location >= last) {
+    ObjUpvalue* upvalue = vm.openUpvalues;
+    upvalue->closed = *upvalue->location; // dereferencing 한 다음,
+    upvalue->location = &upvalue->closed; // location 에 설정한다. 
+    vm.openUpvalues = upvalue->next;
+  }
+}
+
 static bool isFalsy(Value value) {
   // value 가 nil 이면 isFalsy 는 true 다.
   // value 가 bool 이 아니면, isFalsy 는 false 다.
@@ -331,8 +340,13 @@ static InterpretResult run() {
         }
         break;
       }
+      case OP_CLOSE_UPVALUE:
+        closeUpvalues(vm.stackTop - 1);
+        pop();
+        break;
       case OP_RETURN: {
         Value result = pop();
+        closeUpvalues(frame->slots);
         vm.frameCount--;
         if (vm.frameCount == 0) {
           pop();
