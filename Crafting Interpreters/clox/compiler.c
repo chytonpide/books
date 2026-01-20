@@ -4,6 +4,7 @@
 
 #include "common.h"
 #include "compiler.h"
+#include "memory.h"
 #include "scanner.h"
 
 #ifdef DEBUG_PRINT_CODE
@@ -55,7 +56,7 @@ typedef enum {
   TYPE_SCRIPT
 } FunctionType;
 
-typedef struct {
+typedef struct Compiler {
   struct Compiler* enclosing;
   ObjFunction* function;
   FunctionType type;
@@ -214,7 +215,6 @@ static ObjFunction* endCompiler() {
     disassembleChunk(currentChunk(), function->name != NULL? function->name->chars : "<script>");
   }
 #endif
-
   current = current->enclosing;
   return function;
 }
@@ -454,6 +454,18 @@ static void function(FunctionType type) {
   }
 }
 
+static void classDeclaration() {
+  consume(TOKEN_IDENTIFIER, "Expect class name.");
+  uint8_t nameConstant = identifierConstant(&parser.previous); // string obj_val 을 chunk 의 constant 에 쓰고 인덱스를 돌려준다.
+  declareVariable(); // 컴파일러의 locals 에 이름을 추가한다.
+
+  emitBytes(OP_CLASS, nameConstant);
+  defineVariable(nameConstant); // 컴파일러의 locals 의 이름에 초기화 되었음을 설정하고, emitBytes(OP_DEFINE_GLOBAL, nameConstant) 한다.
+
+  consume(TOKEN_LEFT_BRACE, "Expect '{' before class body.");
+  consume(TOKEN_RIGHT_BRACE, "Expect '{' after class body.");
+}
+
 static void funDeclaration() {
   uint8_t global = parseVariable("Expect function name.");
   markInitialized();
@@ -604,7 +616,9 @@ static void synchronize() {
 }
 
 static void declaration() {     // block 이 declarations 을 포함할 수 있고 control flow statements 가 다른 statements 를 포함 할 수 있음으로 declarations 과 statements 함수는 재귀적으로 호출될 것이다.
-  if (match(TOKEN_FUN)) {
+  if (match(TOKEN_CLASS)) {
+    classDeclaration();
+  } else if (match(TOKEN_FUN)) {
     funDeclaration();
   } else if (match(TOKEN_VAR)) {
     varDeclaration();
