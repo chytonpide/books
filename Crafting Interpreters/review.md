@@ -3,6 +3,11 @@
 - stack 과 heap 의 용도에 대해서 알게된다. stack 프로그램이 기동되면서 추적해야 하는 값의 행동은 stack 자료구조의 행동과 정확히 일치한다는 것도 알게된다.
 - 컴파일타임과 런타임에서 공유되는 데이터들, 하나의 모듈 안에서 이루어지는 복잡한 상태의변화. 메서드를 쪼개거나 하는것으로 이해가 쉬어지거나 하지 않다. 어떤 메카니즘을 간결한 코드로 구현하는걸 목적으로 하는 것 같다.
 
+- Value 타입에 대한 이해: lox Complier, VM 에서는 힙에 올라가는 데이터에서는 Value 타입을 사용한다. 실제 계산에서는 c 의 primative 로 변경해서 평가한다?   
+
+Syntax (Structure/Grammar): Defines the "rules" of a language (e.g., word order, conjugation in linguistics; placement of semicolons, variables in programming). Violations lead to compile-time or syntax errors.
+Semantics (Meaning/Logic): Focuses on the "meaning" of the language, such as how words and symbols are interpreted. Semantic errors (or logical errors) often occur during runtime, where the code runs but produces unexpected results.
+
 
 ※ variable(): IDENTIFIER를 읽는 파싱용 래퍼, 토큰을 읽어서 namedVariable 로 넘김
 ※ namedVariable(): 이 이름이 어디(로컬/글로벌/업밸류)에 바인딩되는지 결정하고 GET/SET 바이트코드를 생성
