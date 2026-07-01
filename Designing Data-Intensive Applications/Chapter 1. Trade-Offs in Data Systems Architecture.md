@@ -5,13 +5,15 @@
 ## Characterizing Transaction Processing and Analytics
 - the term transaction nevertheless stuck, referring to a group of reads and writes that form a logical unit. (의미상 하나의 단위)
 - BI
-- OLTP online transaction processing 
-- OLAP online analytics processing
+- OLTP: online transaction processing 
+- OLAP: online analytics processing
 
 ## Data Warehousing
 - A data warehouse, by contrast, is a separate database that analysts can query to their hearts’ content, without affecting OLTP operations
 - This process of getting data into the data warehouse is known as extract–transform–load (ETL) and is illustrated in Figure 1-1.
+  - ETL: extract–transform–load
 - General-purpose systems can handle small data volumes comfortably, but the greater the scale, the more specialized systems tend to become
+
 
 ### From data warehouse to data lake
 - RDS 에 적합 하지 않은 경우 벡터 와 같은 형식, 데이터 사이언티스가 분석에 적합한 형태(파일)로 데이터를 보존하는 곳을 data lake 라고 한다.
@@ -29,7 +31,7 @@
 - 데이터가 어디서 오는건지 명확히 하는것이, 시스템 아키텍쳐에 대한 혼란을 막는다.
 
 # Cloud Versus Self-Hosting
-- cloud vs self-hosting 은 궁국적으로 비지니스 우선순위에 관한 문제이다. 조직의 핵심 역량이나 경쟁 우위를 차지하는 업무는 내부에서, 비핵심적이거나 일상적인 업무는 외부업체에 맡겨야 한다.
+- cloud vs self-hosting 은 궁극적으로 비지니스 우선순위에 관한 문제이다. 조직의 핵심 역량이나 경쟁 우위를 차지하는 업무는 내부에서, 비핵심적이거나 일상적인 업무는 외부업체에 맡겨야 한다.
 - More control, greater investment ←→ Less control, lower investment
 
 ## Pros and Cons of Cloud Services
@@ -45,11 +47,10 @@
 
 ## Operations in the Cloud Era
 운영업무가 변화 해 왔다.
-※　ETL: extract–transform–load 프로세스
 
 # Distributed Versus Single-Node Systems
-※　Node: Each of the processes participating in a distributed system is called a node.
 - 분산 시스템을 사용하는 이유는 많다.
+※　Node: Each of the processes participating in a distributed system is called a node.
 
 ## Problems with Distributed Systems
 - 네트워크 통신은 기본적으로 느리다. 한대에서 처리하는게 100개 노드를 가지는것보다 빠른 경우도 있다.
@@ -60,6 +61,7 @@
 - Microservices are primarily a technical solution to a people problem: allowing different teams to make progress independently without having to coordinate with each other.
 - Serverless or function as a service (FaaS) Serverless, is another approach to deploying services, in which the management of the infrastructure is outsourced to a cloud vendor [32]. When using VMs, you have to explicitly choose when to start up or shut down an instance; in contrast, with the serverless model, the cloud provider automatically allocates and frees hardware resources as needed, based on the incoming requests to your service.
   - 사용량 단위로 과금 한다는 의미로 Serverless 라는 용어가 많이 사용된다.
+- 클라이언트와 서버로 구분하고, 클라이언트가 서버에 요청을 보내도록 하는 것을 서비스 지향 아키텍처(SOA) 라고 하고 이는 MSA 로 발전했다.
 
 ## Cloud Computing Versus Supercomputing
 
@@ -69,7 +71,7 @@
 OLTP, OLAP 에 대해 배우고, 각각에서 나타나는 데이터의 양상, 엑세스 패턴, 사용자의 양상에 대해서 배웠다.
 운영 시스템에서 ETL 을 통해서 데이터를 공급받는 데이터 웨어하우스와 데이터 레이크에 대해서 배웠다.
 클라우드 와 셀프호스팅의 장단점에 대해서 배웠다.
-한 단계 위에서 분산 시스템과, 싱글노드 시스템의 특징들에 대해서 배웠다. 
+분산 시스템과, 싱글노드 시스템의 특징들에 대해서 배웠다. 
 
 
 
