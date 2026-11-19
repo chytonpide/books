@@ -135,3 +135,5 @@ local index 는 각각의 shard 가 다른 샤드와 독립적으로 자신의 s
 global index 는 전체 레코드에 대해서 secondary index 를 만들고 다시 여러 shard 가 나누어 가지는 방식이다(term-partitioned). secondary index 의 key 가 다시 partition key 로 사용된다.
 쓰기 작업에 대해서 여러 샤드의 secondary index 가 업데이트 해야되는 문제가 있다.
 읽기 처리에 대해서 local index 처럼 모든 shard 에 쿼리를 할 필요가 없어서 비교적 효과적이다. 따라서 읽기 처리량이 많이 요구될 때 사용한다.
+
+리플리케이션과 샤딩은 직교한다. 샤드랑 리더가 하나면 싱글리더 리플리케이션이다.

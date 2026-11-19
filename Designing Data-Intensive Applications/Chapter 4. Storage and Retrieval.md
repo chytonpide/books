@@ -51,19 +51,19 @@
     - trie 는 일종의 상태 머신으로 정렬된 상태에서 쓰기를 메우 효율적으로 할 수 있다. O(key-length) 
   - memtable 의 크기가 커지면 SSTable 로 디스크에 저장한다. SSTable 을 디스크에 쓰면서 memtable 은 초기화 된다.
   - 읽기를 할 때, memtable 부터 가장 최근의 segment, 그보다 오래된 segment 에서 순차적으로 key 를 찾는다.
-  - 계속해서 segment 의 병합과 압축(merging and compaction) 프로세스를 백그라운드에서 수행한다.
+  - 계속해서 segment 의 병합과 간결화(merging and compaction) 프로세스를 백그라운드에서 수행한다.
 - segment 를 머지하는 작업은 머지소트 알고리즘과 유사하다.
   - 각각의 segment 는 이미 정렬되어 있다. 
 - 삭제 할때는 tombstone 이라는 레코드를 남기고 머지 할 때, 이것들을 전부 삭제한다.    
-- 이러한 sorted file 을 병합과 압축(merging and compaction) 하는 원리를 기반으로 하는 storage engine 을 LSM storage engine 이라고 한다.
+- 이러한 sorted file 을 병합과 간결화(merging and compaction) 하는 원리를 기반으로 하는 storage engine 을 LSM storage engine 이라고 한다.
 - ※ LSM: Log-Structured Merge-tree (자료구조)
 
 ### Bloom filters
 - 키의 부재를 빠르게 확인하기 위한 필터로, bitwise 오퍼레이션을 활용한다.
-  - 키의 각 문자의 해시값을 계산해서 나온 비트행렬의 인덱스에 1을 기록한다. (해시함수는 특정 길이로 바꾸는 함수다!)
+  - 키의 각 문자의 해시값을 계산해서 나온 비트배열의 인덱스에 1을 기록한다. (해시함수는 특정 길이로 바꾸는 함수다!)
   - 키 값을 찾츨 때 같은 과정을 진행한다. 
-    - 비트행렬의 같은 인덱스에 1이 있다면 있을 수도 있다. (false positive.)
-    - 비트행렬의 같은 인덱스가 하나라도 0 이면 값이 없다. 있다면 반드시 해당 인덱스에 1이 있어야 하기 때문에.
+    - 비트배열의 같은 인덱스에 1이 있다면 있을 수도 있다. (false positive.)
+    - 비트배열의 같은 인덱스가 하나라도 0 이면 값이 없다. 있다면 반드시 해당 인덱스에 1이 있어야 하기 때문에.
 
 ### Compaction strategies
 
